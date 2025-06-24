@@ -1,0 +1,63 @@
+<mvc:View controllerName="zc203.zc203flpmm04.controller.tab2"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:viz="sap.viz.ui5.controls"
+    xmlns:layout="sap.ui.layout"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
+    xmlns:viz.data="sap.viz.ui5.data">
+
+    <Panel>
+        <HBox alignItems="Center" justifyContent="Start" renderType="Bare">
+            <Label text="자재" />
+            <Label width="10px" />
+            <ComboBox id="materialComboBox" items="{ path: '/MaterialSet' }" change=".onMaterialSelectChange" width="300px">
+                <core:Item key="{Matnr}" text="[{Matnr}] - {Maktx}" />
+            </ComboBox>
+        </HBox>
+    </Panel>
+
+    <Panel headerText="📦 최신 납기 내역" expandable="true" width="95%" expanded="true" class="sapUiResponsiveMargin">
+        <VBox id="latestInfoBox" class="sapUiSmallMarginTop sapUiTinyMarginBottom" visible="false">
+            <Text id="latestEindtText" text="자재의 최신 납기 정보를 여기에 표시합니다." />
+        </VBox>
+    </Panel>
+
+    <Panel headerText="📊 자재 수량 그래프" expandable="true" width="95%" expanded="true" class="sapUiResponsiveMargin">
+        <viz:VizFrame id="idVizFrame" uiConfig="{applicationSet:'fiori'}" width="100%" height="250px" vizType="column" 
+        vizProperties="{
+                  plotArea: {
+                      colorPalette: ['#FF6B6B', '#4ECDC4', '#45B7D1']
+                  },
+                  title: {
+                      visible: true,
+                      text: '재고 현황 차트'
+                  }
+              }">
+            <viz:dataset>
+                <viz.data:FlattenedDataset data="{/MaterialSet}">
+                    <viz.data:dimensions>
+                        <viz.data:DimensionDefinition name="자재명" value="{Maktx}" />
+                    </viz.data:dimensions>
+                    <viz.data:measures>
+                        <viz.data:MeasureDefinition name="실재고" value="{Labst}" />
+                        <viz.data:MeasureDefinition name="가용재고" value="{Avast}" />
+                        <viz.data:MeasureDefinition name="안전재고" value="{Obsst}" />
+                    </viz.data:measures>
+                </viz.data:FlattenedDataset>
+            </viz:dataset>
+
+            <viz:feeds>
+                <viz.feeds:FeedItem uid="valueAxis" type="Measure" values="실재고" />
+                <viz.feeds:FeedItem uid="valueAxis" type="Measure" values="가용재고" />
+                <viz.feeds:FeedItem uid="valueAxis" type="Measure" values="안전재고" />
+                <viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="자재명" />
+            </viz:feeds>
+            <viz:dependents>
+                <viz:Popover id="idPopOver" />
+            </viz:dependents>
+        </viz:VizFrame>
+    </Panel>
+
+
+</mvc:View>

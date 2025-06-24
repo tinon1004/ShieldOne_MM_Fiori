@@ -1,0 +1,78 @@
+<mvc:View controllerName="zc203.zc203flpmm04.controller.tab3"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:m="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:unified="sap.ui.unified"
+    xmlns="sap.suite.ui.commons" width="100%" height="100%">
+
+    <!-- 타임라인 -->
+    <m:VBox width="100%" class="sapUiSmallMarginBottom">
+        <m:Panel >
+            <Timeline id="idTimeline" lazyLoading="true" growingThreshold="4" showIcons="false" 
+            enableScroll="true" axisOrientation="Horizontal" class="sapUiSmallMarginBottom">
+                <TimelineItem id="idTemplateItem" dateTime="{
+                            path: 'Lfdat',
+                            formatter: '.formatDate'
+                        }" text="{Prnum}"
+                         title="{Ponum}" />
+            </Timeline>
+        </m:Panel>
+    </m:VBox>
+
+
+    <m:HBox >
+        <!--  날짜 선택 및 자재 목록 -->
+        <!-- 달력 크기 고정 -->
+        <m:VBox width="400px" height="400px" class="sapUiSmallMarginBottom">
+            <unified:Calendar id="idCalendar" select="onDateSelect" 
+            class="sapUiSmallMarginBottom" width="300px" />
+        </m:VBox>
+
+        <m:Label width="15px"/>
+
+        <!-- 자재 정보 패널 크기 고정 -->
+        <m:VBox width="600px" height="400px">
+            <m:Panel visible="{materialModel>/selectedDate}">
+                <m:headerToolbar>
+                    <m:Toolbar>
+                        <m:Title text="자재 목록 ({materialModel>/selectedDate})" />
+                        <m:ToolbarSpacer />
+                        <m:Text text="총 {materialModel>/materials/length}개" class="sapUiTinyMarginEnd" />
+                    </m:Toolbar>
+                </m:headerToolbar>
+
+                <m:VBox>
+                    <!-- 자재 리스트 (페이지네이션 적용) -->
+                    <m:List items="{materialModel>/displayedMaterials}" noDataText="선택한 날짜에 자재가 없습니다.">
+                        <m:StandardListItem title="자재: {materialModel>Maktx}" 
+                        description="구매오더: {materialModel>Ponum} | 구매요청: {materialModel>Prnum} | 구매 수량: {materialModel>Menge}" 
+                        info="{
+                                    path: 'materialModel>Eindt',
+                                    formatter: '.formatDate'
+                                }" infoState="Information" press="onMaterialPress" />
+                    </m:List>
+
+                    <!-- 페이지네이션 컨트롤 -->
+                    <m:HBox justifyContent="SpaceBetween" alignItems="Center" visible="{= ${materialModel>/totalPages} > 1}">
+                        <m:Button icon="sap-icon://navigation-left-arrow" text="이전" press="onPreviousPage" enabled="{
+                                    path: 'materialModel>/currentPage',
+                                    formatter: '.isPreviousEnabled'
+                                }" type="Transparent" />
+
+                        <m:Text text="{
+                                parts: ['materialModel>/currentPage', 'materialModel>/totalPages'],
+                                formatter: '.formatPageInfo'
+                            }" class="sapUiTinyMarginBegin sapUiTinyMarginEnd" />
+
+                        <m:Button icon="sap-icon://navigation-right-arrow" text="다음" press="onNextPage" enabled="{
+                                    parts: ['materialModel>/currentPage', 'materialModel>/totalPages'],
+                                    formatter: '.isNextEnabled'
+                                }" type="Transparent" />
+                    </m:HBox>
+                </m:VBox>
+            </m:Panel>
+        </m:VBox>
+    </m:HBox>
+
+
+</mvc:View>

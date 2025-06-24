@@ -1,0 +1,169 @@
+<mvc:View controllerName="zc203.zc203flpmm04.controller.tab1"
+    xmlns="sap.m"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:m="sap.suite.ui.microchart"
+    xmlns:t="sap.ui.table"
+    xmlns:chart="sap.ui.comp.smartmicrochart"
+    xmlns:core="sap.ui.core">
+
+    <Panel class="sapUiSmallMarginBottom">
+        <HBox alignItems="Center" justifyContent="Start" renderType="Bare">
+            <Label text="자재 코드" labelFor="matnrCombo" />
+            <Label width="5px"/>
+            <ComboBox id="matnrCombo" width="15rem" items="{/MaterialSet}">
+                <items>
+                    <core:ListItem key="{Matnr}" text="{Matnr}" />
+                </items>
+            </ComboBox>
+            <Label width="15px"/>
+            <Label text="자재명" labelFor="maktxCombo" />
+            <Label width="5px"/>
+            <ComboBox id="maktxCombo" width="15rem" items="{/MaterialSet}">
+                <items>
+                    <core:ListItem key="{Maktx}" text="{Maktx}" />
+                </items>
+            </ComboBox>
+
+            <Label width="15px"/>
+
+            <Button text="검색" press=".onSearch" type="Emphasized" class="sapUiTinyMarginBottom"/>
+            <Label width="15px"/>
+            <Button text="초기화" press=".onReset" class="sapUiTinyMarginBottom" />
+            <Label width="15px"/>
+            <Button text="다운로드" press=".onDownloadPDF" icon="sap-icon://download" type="Accept" class="sapUiTinyMarginBottom" />
+
+        </HBox>
+    </Panel>
+
+    <HBox alignItems="Center" width="100%" class="sapUiSmallMarginBottom">
+        <!-- 안전 재고 -->
+        <VBox alignItems="Center" justifyContent="Center">
+            <HBox >
+                <Label width="100px"/>
+                <m:RadialMicroChart id="chartSafe" size="M" valueColor="Good" tooltip="안전 재고 비율" class="sapUiSmallMarginBottom"/>
+            </HBox>
+            <HBox alignItems="Center" justifyContent="Center" width="100%">
+                <core:Icon src="sap-icon://status-positive" color="Good" size="1rem"/>
+                <Label id="labelSafe" text="안전 재고: 0개" design="Bold" class="sapUiTinyMarginBegin"/>
+            </HBox>
+        </VBox>
+
+        <!-- 경고 재고 -->
+        <VBox alignItems="Center">
+            <HBox >
+                <Label width="100px"/>
+                <m:RadialMicroChart id="chartWarning" size="M" valueColor="Critical" tooltip="경고 재고 비율" class="sapUiSmallMarginBottom"/>
+            </HBox>
+            <HBox alignItems="Center">
+                <core:Icon src="sap-icon://status-critical" color="Critical" size="1rem"/>
+                <Label id="labelWarning" text="경고 재고: 0개" design="Bold" class="sapUiTinyMarginBegin"/>
+            </HBox>
+        </VBox>
+
+        <!-- 위험 재고 -->
+        <VBox alignItems="Center" class="sapUiTinyMargin">
+            <HBox >
+                <Label width="100px"/>
+                <m:RadialMicroChart id="chartDanger" size="M" valueColor="Error" tooltip="위험 재고 비율" class="sapUiSmallMarginBottom"/>
+            </HBox>
+            <HBox alignItems="Center">
+                <core:Icon src="sap-icon://status-negative" color="Error" size="1rem"/>
+                <Label id="labelDanger" text="위험 재고: 0개" design="Bold" class="sapUiTinyMarginBegin"/>
+            </HBox>
+        </VBox>
+
+        <Panel>
+            <HBox alignItems="Center" justifyContent="Center" width="300px" height="100px">
+                <core:Icon src="sap-icon://sum" size="1.5rem" color="balck"/>
+                <Label width="15px"/>
+                <Label text="총 자재 개수" design="Bold" />
+                <Label id="labelCount" text="0" width="40px" textAlign="Center" class="sapUiTinyMarginBegin"/>
+            </HBox>
+        </Panel>
+    </HBox>
+
+    <!-- PDF 다운로드 상태 표시 -->
+    <Panel class="sapUiSmallMarginBottom" visible="false" id="downloadStatusPanel">
+        <HBox alignItems="Center" justifyContent="Center">
+            <core:Icon src="sap-icon://download" size="1rem" color="Good"/>
+            <Label width="10px"/>
+            <Text text="재고 현황 데이터를 CSV 파일로 다운로드합니다." class="sapUiTinyMarginBegin"/>
+        </HBox>
+    </Panel>
+
+    <Panel>
+        <t:Table id="MaterialSet" rows="{/MaterialSet}" visibleRowCount="8" selectionMode="Single" selectionBehavior="RowOnly" paste="onPaste" ariaLabelledBy="title">
+
+            <t:columns>
+                <t:Column width="5rem">
+                    <Label text="재고 현황" />
+                    <t:template>
+                        <HBox class="iconSpacing" alignItems="Center" justifyContent="Start">
+                            <core:Icon src="{
+                parts: ['Avast', 'Obsst'],
+                formatter: '.getStockStatusIcon'
+            }" color="{
+                parts: ['Avast', 'Obsst'],
+                formatter: '.getStockStatusColor'
+            }" size="1.375rem" />
+                            <Text text="{
+                parts: ['Avast', 'Obsst'],
+                formatter: '.getStockStatusText'
+            }" class="stockStatusText" 
+            />
+                        </HBox>
+                    </t:template>
+                </t:Column>
+                <t:Column width="11rem">
+                    <Label text="{/#MaterialSet/Matnr/@sap:label}" />
+                    <t:template>
+                        <Text text="{Matnr}" />
+                    </t:template>
+                </t:Column>
+                <t:Column width="11rem">
+                    <Label text="{/#MaterialSet/Maktx/@sap:label}" />
+                    <t:template>
+                        <Text text="{Maktx}" />
+                    </t:template>
+                </t:Column>
+                <t:Column width="8rem">
+                    <Label text="{/#MaterialSet/Pname/@sap:label}" />
+                    <t:template>
+                        <Text text="{Pname}" />
+                    </t:template>
+                </t:Column>
+                <t:Column width="8rem">
+                    <Label text="창고 명" />
+                    <t:template>
+                        <Text text="성남 창고" />
+                    </t:template>
+                </t:Column>
+                <t:Column width="6rem">
+                    <Label text="{/#MaterialSet/Labst/@sap:label}" />
+                    <t:template>
+                        <Text text="{Labst}" />
+                    </t:template>
+                </t:Column>
+                <t:Column width="6rem">
+                    <Label text="{/#MaterialSet/Avast/@sap:label}" />
+                    <t:template>
+                        <Text text="{Avast}" />
+                    </t:template>
+                </t:Column>
+                <t:Column width="6rem">
+                    <Label text="{/#MaterialSet/Obsst/@sap:label}" />
+                    <t:template>
+                        <Text text="{Obsst}" />
+                    </t:template>
+                </t:Column>
+                <t:Column width="6rem">
+                    <Label text="{/#MaterialSet/Meins/@sap:label}" />
+                    <t:template>
+                        <Text text="{Meins}" />
+                    </t:template>
+                </t:Column>
+            </t:columns>
+        </t:Table>
+    </Panel>
+
+</mvc:View>

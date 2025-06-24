@@ -1,0 +1,21 @@
+<mvc:View controllerName="zc203.zc203flpmm04.controller.View1"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m">
+    <ScrollContainer height="100vh" vertical="true" horizontal="false">
+        <VBox>
+
+            <IconTabHeader id="iconTabHeader" select=".onTabSelect">
+                <items>
+                    <IconTabFilter text="반제품 재고 현황" key="tab1" />
+                    <IconTabFilter text="재고 별 상세 내역" key="tab2" />
+                    <IconTabFilter text="자재 납기일 현황" key="tab3" />
+                </items>
+            </IconTabHeader>
+
+            <VBox id="contentArea" class="sapUiSmallMargin customContentArea" />
+
+
+        </VBox>
+
+    </ScrollContainer >
+</mvc:View>
