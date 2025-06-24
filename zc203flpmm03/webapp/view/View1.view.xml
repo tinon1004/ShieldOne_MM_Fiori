@@ -1,0 +1,264 @@
+
+<mvc:View controllerName="zc203.zc203flpmm03.controller.View1"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:mdc="sap.ui.mdc"
+    xmlns:t="sap.ui.table"
+    xmlns:f="sap.ui.layout.form"
+    xmlns:core="sap.ui.core"
+    xmlns="sap.m">
+
+    <!-- 배너 -->
+    <VBox width="100%" class="customBanner sapUiSmallMarginBottom">
+        <Text text="구매 계획 결재" class="customBannerTitle" />
+        <Text text="구매 계획 조회 및 결재 관리" class="customBannerText" wrapping="true" />
+    </VBox>
+
+    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMargin sapUiSmallMarginBottom">
+        <!-- 왼쪽: 검색 영역 -->
+        <HBox alignItems="Center">
+            <Label text="구매 계획 번호"/>
+            <Label width="5px"/>
+            <Input id="searchPlnumInput" width="200px" showClearIcon="true" class="sapUiTinyMarginEnd"/>
+            <Button text="검색" icon="sap-icon://search" press="onSearchPlnum" class="sapUiTinyMarginEnd"/>
+            <Button text="새로고침" icon="sap-icon://reset" press="onClearSearch"/>
+        </HBox>
+
+        <!-- 오른쪽: 승인/반려 버튼 -->
+        <HBox alignItems="Center">
+            <Button text="승인" icon="sap-icon://accept" type="Accept" press="onAccept"/>
+            <Label width="10px"/>
+            <Button text="반려" icon="sap-icon://decline" type="Reject" press="onReturn"/>
+        </HBox>
+    </HBox>
+
+
+    <Panel>
+        <t:Table id="MaterialPlan" rows="{/MaterialPlan}" selectionMode="Single" selectionBehavior="RowOnly" paste="onPaste" ariaLabelledBy="title">
+            <t:Column width="5rem">
+                <Label text="결재 현황"/>
+                <t:template>
+                    <HBox alignItems="Center" justifyContent="Center">
+                        <core:Icon src="{= ${Status} === '1' ? 'sap-icon://accept' : ${Status} === '2' ? 'sap-icon://decline' : 'sap-icon://lateness'}" color="{= ${Status} === '1' ? 'green' : ${Status} === '2' ? 'red' : 'orange'}" tooltip="{= ${Status} === '1' ? '승인 완료' : ${Status} === '2' ? '반려' : '승인 대기중'}" size="1rem" />
+                    </HBox>
+                </t:template>
+            </t:Column>
+            <t:columns>
+
+                <t:Column width="4rem">
+                    <Label text="상세" />
+                    <t:template>
+                        <Button icon="sap-icon://expand-all" press="onViewDetails" type="Transparent" tooltip="상세내역 확인하기">
+                            <customData>
+                                <core:CustomData key="Plnum" value="{Plnum}" />
+                            </customData>
+                        </Button>
+                    </t:template>
+                </t:Column>
+                <t:Column width="8rem">
+                    <Label text="{/#MaterialPlan/Plnum/@sap:label}" />
+                    <t:template>
+                        <Text text="{Plnum}" />
+                    </t:template>
+                </t:Column>
+                <t:Column width="10rem">
+                    <Label text="{/#MaterialPlan/Plmrp/@sap:label}" />
+                    <t:template>
+                        <Text text="{Plmrp}" />
+                    </t:template>
+                </t:Column>
+                <t:Column width="10rem">
+                    <Label text="{/#MaterialPlan/Emmrp/@sap:label}" />
+                    <t:template>
+                        <Text text="{Emmrp}" />
+                    </t:template>
+                </t:Column>
+                <t:Column width="10rem">
+                    <Label text="{/#MaterialPlan/Apprd/@sap:label}" />
+                    <t:template>
+                        <Text text="{= ${Apprd} === '00000000' ? '' : ${Apprd} }" />
+                    </t:template>
+                </t:Column>
+                <t:Column width="8rem">
+                    <Label text="{/#MaterialPlan/Gjhar/@sap:label}" />
+                    <t:template>
+                        <Text text="{= ${Gjhar} === '0000' ? '' : ${Gjhar} }" />
+                    </t:template>
+                </t:Column>
+                <t:Column width="5rem">
+                    <Label text="결재자" />
+                    <t:template>
+                        <Text text="{Pernam}" />
+                    </t:template>
+                </t:Column>
+                <t:Column width="5rem">
+                    <Label text="{/#MaterialPlan/Retop/@sap:label}" />
+                    <t:template>
+                        <VBox>
+                            <Text text="{Retop}" visible="{= !${Retop} }" />
+                            <Button icon="sap-icon://detail-view" type="Emphasized" tooltip="반려 사유 보기" visible="{= !!${Retop} }" press=".onShowReturnReason">
+                                <customData>
+                                    <core:CustomData key="Retop" value="{Retop}" />
+                                    <core:CustomData key="Plnum" value="{Plnum}" />
+                                </customData>
+                            </Button>
+                        </VBox>
+                    </t:template>
+                </t:Column>
+            </t:columns>
+        </t:Table>
+    </Panel>
+
+    <f:SimpleForm id="detailForm" editable="{view>/editMode}" visible="false">
+        <Label text="자재번호" />
+        <Input value="{data>/string}" />
+
+        <Label text="월" />
+        <Input value="{data>/integer}" type="Number" />
+
+        <Label text="상태" />
+        <CheckBox selected="{data>/boolean}" text="승인 여부" />
+    </f:SimpleForm>
+
+    <!-- 상세 내역 팝업 -->
+    <Dialog id="materialItemDialog" title="자재 항목 상세" contentWidth="60%" contentHeight="60%" draggable="true" resizable="true">
+        <content>
+            <t:Table id="MaterialItem" rows="{/MaterialItem}" selectionMode="Single" selectionBehavior="RowOnly" paste="onPaste" ariaLabelledBy="title">
+                <t:columns>
+                    <t:Column width="8rem">
+                        <Label text="{/#MaterialItem/Matnr/@sap:label}" />
+                        <t:template>
+                            <Text text="{Matnr}" />
+                        </t:template>
+                    </t:Column>
+                    <t:Column width="8rem">
+                        <Label text="{/#MaterialItem/Plnum/@sap:label}" />
+                        <t:template>
+                            <Text text="{Plnum}" />
+                        </t:template>
+                    </t:Column>
+                    <t:Column width="10rem">
+                        <Label text="{/#MaterialItem/Name1/@sap:label}" />
+                        <t:template>
+                            <VBox>
+                                <Text text="{Name1}" visible="{= !${editMode} }" />
+                                <ComboBox selectedKey="{Name1}" visible="{= !!${editMode} }" width="100%" editable="true" enabled="{= !!${editMode} }">
+                                    <core:Item key="VD00000001" text="(주)성진에스에스" />
+                                    <core:Item key="VD00000002" text="(주)영도시큐리티" />
+                                    <core:Item key="VD00000003" text="(주)오디오네트웍스" />
+                                    <core:Item key="VD00000004" text="(주)오픈웍스" />
+                                    <core:Item key="VD00000005" text="(주)알텍씨앤에스" />
+                                    <core:Item key="VD00000006" text="(주)알텍씨앤에스" />
+                                    <core:Item key="VD00000007" text="(주)와이비케이글로벌" />
+                                    <core:Item key="VD00000008" text="(주)와이앤엠엑스텍스" />
+                                    <core:Item key="VD00000009" text="(주)우신아이앤씨" />
+                                    <core:Item key="VD00000010" text="(주)우진정보" />
+                                </ComboBox>
+                            </VBox>
+                        </t:template>
+                    </t:Column>
+                    <t:Column width="7rem">
+                        <Label text="{/#MaterialItem/Monat/@sap:label}" />
+                        <t:template>
+                            <VBox>
+                                <Text text="{Monat}" visible="{= !${editMode} }" />
+                                <ComboBox selectedKey="{Monat}" visible="{= !!${editMode} }" width="100%" editable="true" enabled="{= !!${editMode} }">
+                                    <core:Item key="01" text="01" />
+                                    <core:Item key="02" text="02" />
+                                    <core:Item key="03" text="03" />
+                                    <core:Item key="04" text="04" />
+                                    <core:Item key="05" text="05" />
+                                    <core:Item key="06" text="06" />
+                                    <core:Item key="07" text="07" />
+                                    <core:Item key="08" text="08" />
+                                    <core:Item key="09" text="09" />
+                                    <core:Item key="10" text="10" />
+                                    <core:Item key="11" text="11" />
+                                    <core:Item key="12" text="12" />
+                                </ComboBox>
+                            </VBox>
+                        </t:template>
+                    </t:Column>
+                    <t:Column width="7rem">
+                        <Label text="{/#MaterialItem/Menge/@sap:label}(EA)" />
+                        <t:template>
+                            <Text text="{
+                            parts:[{path:'Menge'},{path:'Meins'}],
+                            type: 'sap.ui.model.type.Unit',
+                            formatOptions: {showMeasure: false } 
+                            }" wrapping="false" />
+                        </t:template>
+                    </t:Column>
+                    <t:Column width="8rem">
+                        <Label text="{/#MaterialItem/Price/@sap:label}(KRW)" />
+                        <t:template>
+                            <VBox>
+                                <Text text="{path: 'Price', formatter: '.formatPriceKRW'}" wrapping="false" visible="{= !${editMode} }" />
+                                <Input value="{Price}" type="Number" textAlign="End" placeholder="단가 입력" visible="{= !!${editMode} }" />
+                            </VBox>
+                        </t:template>
+                    </t:Column>
+                    <t:Column width="3rem">
+                        <Label text="수정"/>
+                        <t:template>
+                            <HBox justifyContent="Center" alignItems="Center">
+                                <Button  type="Transparent" icon="{= ${editMode} ? 'sap-icon://save' : 'sap-icon://edit'}" press=".onEditRow">
+                                    <customData>
+                                        <core:CustomData key="rowIndex" value="{= ${__index} }" />
+                                    </customData>
+                                </Button>
+                            </HBox>
+                        </t:template>
+                    </t:Column>
+                </t:columns>
+            </t:Table>
+        </content>
+        <buttons>
+            <Button text="닫기" press="onCloseDialog" />
+        </buttons>
+    </Dialog>
+
+    <!-- 반려 사유 입력 팝업 -->
+    <Dialog id="returnReasonDialog" title="반려 사유 입력" contentWidth="40%" contentHeight="auto">
+        <content>
+            <VBox class="sapUiSmallMargin">
+                <Label text="구매계획번호" design="Bold" />
+                <Text id="returnPlnumText" text="" />
+
+                <Label text="담당자" class="sapUiSmallMarginTop" />
+                <Input id="authorRetunnInput" value="{view>/authorName}" showValueHelp="true" valueHelpRequest="onAuthorValueHelp" placeholder="담당자 선택" class="sapUiSmallMarginBottom"/>
+
+
+                <Label text="반려 사유" design="Bold" class="sapUiSmallMarginTop" required="true" />
+                <TextArea id="returnReasonTextArea" width="100%" rows="5" placeholder="반려 사유를 입력하세요." value="{view>/returnReason}" valueLiveUpdate="true" />
+
+                <MessageStrip id="returnErrorMessage" text="반려 사유를 입력해주세요." type="Error" showIcon="true" visible="false" class="sapUiSmallMarginTop" />
+            </VBox>
+        </content>
+        <buttons>
+            <Button text="확인" press="onSubmitReturnReason" type="Emphasized" />
+            <Button text="취소" press="onCancelReturnReason" />
+        </buttons>
+    </Dialog>
+
+    <!-- 승인 확인 팝업 -->
+    <Dialog id="acceptConfirmDialog" title="승인 확인" draggable="true" resizable="true" contentWidth="400px" contentHeight="auto">
+
+        <VBox class="sapUiSmallMargin">
+            <Text text="구매계획을 승인 하시겠습니까?" />
+
+            <Label text="담당자" class="sapUiSmallMarginTop" />
+            <Input id="authorInput" value="{view>/authorName}" showValueHelp="true" valueHelpRequest="onAuthorValueHelp" placeholder="담당자 선택" class="sapUiSmallMarginBottom"/>
+
+            <Label text="구매계획년도" class="sapUiSmallMarginTop" />
+            <Text text="{view>/currentYear}년" />
+        </VBox>
+
+        <beginButton>
+            <Button text="확인" type="Emphasized" press="onConfirmAccept" />
+        </beginButton>
+        <endButton>
+            <Button text="취소" press="onCancelAccept" />
+        </endButton>
+    </Dialog>
+
+</mvc:View>
